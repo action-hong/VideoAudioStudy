@@ -2,15 +2,17 @@ package com.kkopite.videoaudiostudy;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.kkopite.videoaudiostudy.c1.C1Activity;
 import com.kkopite.videoaudiostudy.c2.AudioActivity;
+import com.kkopite.videoaudiostudy.extractor.ExtractorActivity;
+import com.kkopite.videoaudiostudy.openGL.OpenGLActivity;
+import com.kkopite.videoaudiostudy.video.PreviewActivity;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,6 +22,9 @@ public class Main2Activity extends AppCompatActivity {
     private final TreeMap<String, Class<? extends Activity>> buttons = new TreeMap<String, Class<? extends Activity>>() {{
         put("c1", C1Activity.class);
         put("c2", AudioActivity.class);
+        put("video", PreviewActivity.class);
+        put("音频的分离与合成", ExtractorActivity.class);
+        put("openGL", OpenGLActivity.class);
     }};
 
 
