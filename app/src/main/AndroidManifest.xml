@@ -36,6 +36,8 @@
         <activity android:name=".extractor.ExtractorActivity">
         </activity>
         <activity android:name=".openGL.OpenGLActivity"/>
+        <activity android:name=".codec.CodecActivity">
+        </activity>
     </application>
 
 </manifest>
