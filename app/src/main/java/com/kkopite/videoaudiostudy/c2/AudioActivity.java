@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AudioActivity extends AppCompatActivity implements View.OnClickListener, AudioCapture.OnAudioFrameCapturedListener {
+public class AudioActivity extends AppCompatActivity implements View.OnClickListener, AudioCapture.OnAudioFrameCapturedListener, AudioEncoder.OnAudioEncodedListener, AudioDecoder.OnAudioDecodedListener {
     private Button mBtnCapture;
     private Button mBtnStop;
     private Button mBtnPlay;
@@ -24,6 +24,8 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
 
     private AudioPlayer mPlayer = new AudioPlayer();
     private AudioCapture mAudioCapture = new AudioCapture();
+    private AudioEncoder mAudioEncoder = new AudioEncoder();
+    private AudioDecoder mAudioDecoder = new AudioDecoder();
 
     private File mWavDir;
 
@@ -63,6 +65,18 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
             file.mkdir();
         }
         mWavDir = file;
+
+        mAudioDecoder.open();
+        mAudioEncoder.open();
+        mAudioEncoder.setAudioEncodedListener(this);
+        mAudioDecoder.setAudioDecodedListener(this);
+
+        new Thread(mEncodeRenderRunnable).start();
+        new Thread(mDecodeRenderRunnable).start();
+        mAudioCapture.startCapture();
+
+
+        mPlayer.startPlayer();
     }
 
     @Override
@@ -116,6 +130,9 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
     public void onAudioFrameCaptured(byte[] audioData) {
         datas.add(audioData);
         mWriter.writeData(audioData, 0, audioData.length);
+
+        long presentationTimeUs = (System.nanoTime()) / 1000L;
+        mAudioEncoder.encode(audioData, presentationTimeUs);
     }
 
     public static byte[] concatAll(byte[] first, byte[] rest) {
@@ -144,6 +161,12 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
 
     private volatile boolean mIsTestingExit = false;
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mIsTestingExit = true;
+    }
+
     private Runnable AudioPlayRunnable = new Runnable() {
         @Override
         public void run() {
@@ -164,4 +187,34 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
             }
         }
     };
+
+    @Override
+    public void onFrameEncoded(byte[] encoded, long presentationTimeUs) {
+        mAudioDecoder.decode(encoded, presentationTimeUs);
+    }
+
+    private Runnable mEncodeRenderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while (!mIsTestingExit) {
+                mAudioEncoder.retrieve();
+            }
+            mAudioEncoder.close();
+        }
+    };
+
+    private Runnable mDecodeRenderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while (!mIsTestingExit) {
+                mAudioDecoder.retrieve();
+            }
+            mAudioDecoder.close();
+        }
+    };
+
+    @Override
+    public void onFrameDecoded(byte[] decoded, long presentationTimeUs) {
+        mPlayer.play(decoded, 0, decoded.length);
+    }
 }
