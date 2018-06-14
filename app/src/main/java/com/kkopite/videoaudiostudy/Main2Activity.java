@@ -1,8 +1,10 @@
 package com.kkopite.videoaudiostudy;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.Button;
 
 import com.kkopite.videoaudiostudy.c1.C1Activity;
 import com.kkopite.videoaudiostudy.c2.AudioActivity;
+import com.kkopite.videoaudiostudy.codec.CodecActivity;
 import com.kkopite.videoaudiostudy.extractor.ExtractorActivity;
 import com.kkopite.videoaudiostudy.openGL.OpenGLActivity;
 import com.kkopite.videoaudiostudy.video.PreviewActivity;
@@ -25,6 +28,7 @@ public class Main2Activity extends AppCompatActivity {
         put("video", PreviewActivity.class);
         put("音频的分离与合成", ExtractorActivity.class);
         put("openGL", OpenGLActivity.class);
+        put("视频的解码", CodecActivity.class);
     }};
 
 
@@ -33,6 +37,7 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         initView();
+        request();
 
     }
 
@@ -49,5 +54,16 @@ public class Main2Activity extends AppCompatActivity {
             });
             container.addView(button);
         }
+    }
+
+    private void request() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO
+                },
+                0);
     }
 }

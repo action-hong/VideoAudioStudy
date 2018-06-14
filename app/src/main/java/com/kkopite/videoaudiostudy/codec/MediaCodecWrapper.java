@@ -89,5 +89,17 @@ public class MediaCodecWrapper {
 
     }
 
+    public boolean retrieve() {
+
+        MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+        int outputBufferIndex = mDecoder.dequeueOutputBuffer(bufferInfo, 1000);
+        if (outputBufferIndex >= 0) {
+            mDecoder.releaseOutputBuffer(outputBufferIndex, true);
+        }
+        return true;
+    }
+
+
+
 
 }
